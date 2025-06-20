@@ -1,11 +1,17 @@
+export {};
+
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db';
 import authRoutes from './routes/authRoutes';
-
+import hotelRoutes from './routes/hotelRoutes';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
+import path from 'path';
+import userRoutes from './routes/userRoutes';
+import uploadRoutes from './routes/uploadRoutes';
+import { Request, Response } from 'express';
 
 // ✅ 初始化環境變數
 dotenv.config();
@@ -14,22 +20,28 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ 載入 Swagger 文件
-const swaggerDocument = YAML.load('./src/swagger.yaml');
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
 // ✅ 連接 MongoDB
 connectDB();
 
-// ✅ 中介軟體
+// ✅ 中介軟體 - 這些必須在路由之前設定
 app.use(cors());
 app.use(express.json());
 
-// ✅ API 路由
+// ✅ 靜態檔案服務
+app.use('/uploads', express.static('uploads'));
+
+// ✅ 載入 Swagger 文件
+const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// ✅ API 路由 - 確保正確的順序
 app.use('/auth', authRoutes);
+app.use('/hotels', hotelRoutes);  // 這個路由現在應該能正常工作
+app.use('/user', userRoutes);
+app.use('/upload', uploadRoutes);
 
 // ✅ 測試首頁
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   res.send('🌍 Wanderlust Travel API is running!');
 });
 

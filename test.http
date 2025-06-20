@@ -1,32 +1,78 @@
-### 註冊 (只限內部員工)
+### ✅ 測試首頁
+GET http://localhost:5000/
+
+###
+
+### ✅ 註冊新員工（只限操作員註冊）
 POST http://localhost:5000/auth/register
 Content-Type: application/json
 
 {
   "username": "admin",
-  "password": "123456",
+  "password": "admin123",
   "signUpCode": "WANDER123"
 }
 
-### 登入
+###
+
+### ✅ 登入取得 JWT Token
 POST http://localhost:5000/auth/login
 Content-Type: application/json
 
 {
   "username": "admin",
-  "password": "123456"
+  "password": "admin123"
 }
 
+###
 
-POST http://localhost:5000/auth/register
+### ✅ 公開取得所有酒店（無需登入）
+GET http://localhost:5000/hotels
+
+###
+
+### ✅ 新增酒店（需登入，請將 {{token}} 換成上一步拿到的 JWT token）
+POST http://localhost:5000/hotels
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODU0YjBjN2U0ODI1NTAzZDc4OTZhMTYiLCJyb2xlIjoib3BlcmF0b3IiLCJpYXQiOjE3NTA0MTI0ODcsImV4cCI6MTc1MDQxNjA4N30.ftlYnGJ-6pFU453M7G-GCtrFEdmr1RoIyjEb_9eW0ck
 
 {
-  "username": "admin",
-  "password": "123456",
-  "signUpCode": "WANDER123"
+  "name": "abc Hotel",
+  "location": "HongKong",
+  "pricePerNight": 120,
+  "description": "Beautiful ocean view hotel"
 }
 
-### 測試受保護的 API（將 {{token}} 替換成登入取得的 token）
-GET http://localhost:5000/hotels
+###
+
+### ✅ 修改酒店（請替換 :id 與 token）
+PUT http://localhost:5000/hotels/:id
+Content-Type: application/json
 Authorization: Bearer {{token}}
+
+{
+  "name": "Updated Sunset Hotel",
+  "location": "Accra",
+  "price": 150,
+  "description": "Updated description"
+}
+
+###
+
+### ✅ 刪除酒店（請替換 :id 與 token）
+DELETE http://localhost:5000/hotels/:id
+Authorization: Bearer {{token}}
+
+###
+
+### ✅ 上傳用戶頭像（需登入，使用 multipart/form-data）
+POST http://localhost:5000/upload
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=FormBoundary
+
+--FormBoundary
+Content-Disposition: form-data; name="image"; filename="photo.jpg"
+Content-Type: image/jpeg
+
+< ./test/photo.jpg
+--FormBoundary--

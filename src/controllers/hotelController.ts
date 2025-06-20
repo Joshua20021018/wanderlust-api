@@ -1,47 +1,56 @@
 import { Request, Response } from 'express';
 import Hotel from '../models/hotelModel';
-import { AuthenticatedRequest } from '../middleware/authMiddleware';
 
-export const createHotel = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-  try {
-    const hotel = await Hotel.create(req.body);
-    res.status(201).json(hotel);
-  } catch (err) {
-    res.status(500).json({ message: 'Create hotel failed', error: err });
-  }
-};
-
-export const getHotels = async (_req: Request, res: Response): Promise<void> => {
+// 取得所有酒店
+export const getHotels = async (req: Request, res: Response): Promise<void> => {
   try {
     const hotels = await Hotel.find();
     res.status(200).json(hotels);
-  } catch (err) {
-    res.status(500).json({ message: 'Get hotels failed', error: err });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
   }
 };
 
-export const updateHotel = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+// 新增酒店（需要登入）
+export const createHotel = async (req: Request, res: Response): Promise<void> => {
   try {
-    const hotel = await Hotel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const hotel = await Hotel.create(req.body);
+    res.status(201).json(hotel);
+  } catch (error) {
+    res.status(400).json({ message: 'Create hotel failed', error });
+  }
+};
+
+// 更新酒店資訊（需要登入）
+export const updateHotel = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const hotel = await Hotel.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+
     if (!hotel) {
       res.status(404).json({ message: 'Hotel not found' });
       return;
     }
+
     res.status(200).json(hotel);
-  } catch (err) {
-    res.status(500).json({ message: 'Update hotel failed', error: err });
+  } catch (error) {
+    res.status(500).json({ message: 'Update hotel failed', error });
   }
 };
 
-export const deleteHotel = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+// 刪除酒店（需要登入）
+export const deleteHotel = async (req: Request, res: Response): Promise<void> => {
   try {
     const hotel = await Hotel.findByIdAndDelete(req.params.id);
+
     if (!hotel) {
       res.status(404).json({ message: 'Hotel not found' });
       return;
     }
-    res.status(200).json({ message: 'Hotel deleted' });
-  } catch (err) {
-    res.status(500).json({ message: 'Delete hotel failed', error: err });
+
+    res.status(200).json({ message: 'Hotel deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Delete hotel failed', error });
   }
 };
